@@ -1,4 +1,6 @@
 ﻿using Newtonsoft.Json;
+using OnlinePhoneMarket_bot.TelegramBotHandler;
+using System.ComponentModel.Design;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
@@ -6,15 +8,21 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using io = System.IO;
 
-namespace _25_lesson_TelegramBot_Basic
+namespace OnlinePhoneMarket_bot
 
 {
     public class TelegramBot
     {
-        TelegramBotClient botClient = new TelegramBotClient("6604524051:AAGsfKN-6lkfhkze9GSxb8cGdaFaQKRG8ts");
+        public string MyToken { get; set; }
+        public TelegramBot(string token) 
+        {
+            MyToken = token;
+        }
+
         public bool IsEnter { get; set; } = false;
         public async Task MainFunction()
         {
+            TelegramBotClient botClient = new TelegramBotClient(MyToken);
             using CancellationTokenSource cts = new();
             ReceiverOptions receiverOptions = new()
             {
@@ -35,82 +43,61 @@ namespace _25_lesson_TelegramBot_Basic
 
             cts.Cancel();
 
+            HashSet<string> dublicateData = new HashSet<string>();
             async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
             {
+
                 try
                 {
-                    string jsonFilePath = "../../../users.json";
-                    var dataList = io.File.ReadAllText(jsonFilePath);
-
-                    List<Contact> list = JsonConvert.DeserializeObject<List<Contact>>(dataList);
-
-                    foreach (var item in list)
+                    long AdminUserId = 1921207596;
+                    if (update.Message.Chat.Id == AdminUserId)
                     {
+                       AdminClass adminClass = new AdminClass();
+                       await adminClass.AdminMethod(botClient, update, cancellationToken);
 
-                        if (item.UserId == update.Message.Chat.Id)
+                    }
+                    else
+                    {
+                                string jsonFilePath = "../../../users.json";
+                        var dataList = io.File.ReadAllText(jsonFilePath);
+
+                        List<Contact> list = JsonConvert.DeserializeObject<List<Contact>>(dataList);
+
+                        foreach (var item in list)
                         {
-                            IsEnter = true;
-                            break;
-                        }
-                        else
-                        {
-                            IsEnter = false;
-                            if (update.Message.Contact is not null && item.PhoneNumber != update.Message.Contact.PhoneNumber)
+
+                            if (item.UserId == update.Message.Chat.Id)
                             {
-                                list.Add(update.Message.Contact);
-
-                                var data = io.File.ReadAllText(jsonFilePath);
-
-                                using (StreamWriter sw = new StreamWriter(jsonFilePath))
-                                {
-                                    sw.WriteLine(JsonConvert.SerializeObject(list, Formatting.Indented));
-                                }
                                 IsEnter = true;
                                 break;
                             }
-                        }
-                    }
-                    string allData = "";
-                    HashSet<string> dublicateData = new HashSet<string>();
-                    if (update.Message.Text == "/getall")
-                    {
-                        for (var i = 0; i < list.Count - 1; i++)
-                        {
-                            dublicateData.Add($"First Name: {list[i].FirstName}\nPhone Number: {list[i].PhoneNumber}\n\n");
-                        }
-                        foreach (var item in dublicateData)
-                        {
-                            allData += item;
-                        }
-                        var message = update.Message;
-                        await botClient.SendTextMessageAsync(
-                            chatId: message.Chat.Id,
-                            replyToMessageId: message.MessageId,
-                            text: allData,
-                            cancellationToken: cancellationToken);
-                    }
-                    else if (update.Message.Text == "/getme")
-                    {
-                        foreach (var item in list)
-                        {
-                            if (item.UserId == update.Message.Chat.Id)
+                            else
                             {
-                                var message = update.Message;
-                                await botClient.SendTextMessageAsync(
-                                    chatId: message.Chat.Id,
-                                    replyToMessageId: message.MessageId,
-                                    text: $"First Name: {item.FirstName}\nPhone Number: {item.PhoneNumber}",
-                                    cancellationToken: cancellationToken);
-                                break;
+                                IsEnter = false;
+                                if (update.Message.Contact is not null && item.PhoneNumber != update.Message.Contact.PhoneNumber)
+                                {
+                                    list.Add(update.Message.Contact);
+
+                                    var data = io.File.ReadAllText(jsonFilePath);
+
+                                    using (StreamWriter sw = new StreamWriter(jsonFilePath))
+                                    {
+                                        sw.WriteLine(JsonConvert.SerializeObject(list, Formatting.Indented));
+                                    }
+                                    IsEnter = true;
+                                    break;
+                                }
                             }
                         }
-                    }
+                        string allData = "";
 
-                    var handler = update.Type switch
-                    {
-                        UpdateType.Message => Message.MessageAsyncFunction(botClient, update, cancellationToken, IsEnter),
-                        _ => Message.MessageAsyncFunction(botClient, update, cancellationToken, IsEnter),
-                    };
+
+                        var handler = update.Type switch
+                        {
+                            UpdateType.Message => Message.MessageAsyncFunction(botClient, update, cancellationToken, IsEnter),
+                            _ => Message.MessageAsyncFunction(botClient, update, cancellationToken, IsEnter),
+                        };
+                    }
                 }
                 catch (Exception e)
                 {

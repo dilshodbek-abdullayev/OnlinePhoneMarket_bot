@@ -1,12 +1,14 @@
-﻿using Telegram.Bot;
+﻿using OnlinePhoneMarket_bot.TelegramBotHandler;
+using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace _25_lesson_TelegramBot_Basic
+namespace OnlinePhoneMarket_bot
 {
     public class Message
     {
+        AdminClass admin = new AdminClass();
         public static async Task MessageAsyncFunction(ITelegramBotClient botClient, Update update,
             CancellationToken cancellationToken, bool isEnter)
         {
@@ -63,9 +65,9 @@ namespace _25_lesson_TelegramBot_Basic
             (
                 chatId: message.Chat.Id,
                 replyToMessageId: message.MessageId,
-                text: "Ehe salomlar",
+                text: "Iltimos biror bo'lim tanlang",
                 cancellationToken: cancellationToken
-            );
+            ) ;
         }
         static async Task OtherAsyncFunctiob(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {
