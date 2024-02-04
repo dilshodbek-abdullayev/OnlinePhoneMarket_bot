@@ -6,6 +6,7 @@ using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.ReplyMarkups;
 using io = System.IO;
 
 namespace OnlinePhoneMarket_bot
@@ -52,13 +53,68 @@ namespace OnlinePhoneMarket_bot
                     long AdminUserId = 1921207596;
                     if (update.Message.Chat.Id == AdminUserId)
                     {
-                       AdminClass adminClass = new AdminClass();
-                       await adminClass.AdminMethod(botClient, update, cancellationToken);
+                        var replyKeyboardMarkup = new ReplyKeyboardMarkup(
+                        new List<KeyboardButton[]>()
+                        {
+                            new KeyboardButton[]
+                            {
+                                new KeyboardButton("Smartphones📱"),
+                                new KeyboardButton("Sale Statistics📊"),
+                            },
+                            new KeyboardButton[]
+                            {
+                                new KeyboardButton("Near Branches🏪"),
+                                new KeyboardButton("All Clients🗒")
+                            },
+                            new KeyboardButton[]
+                            {
+                                new KeyboardButton("Order Status⏳"),
+                                new KeyboardButton("Edit Order Status📝")
+                            },
+                            new KeyboardButton[]
+                            {
+                                new KeyboardButton("Pay Type💰"),
+                                new KeyboardButton("Payment History📋")
+                            }
+                        })
+                        {
+                            ResizeKeyboard = true,
+                        };
+                        await botClient.SendTextMessageAsync(
+                            chatId: update.Message.Chat.Id,
+                            text: "tanla",
+                            replyMarkup: replyKeyboardMarkup,
+                            cancellationToken: cancellationToken
+                            );
 
+
+                    } else if (update.Message.Text == "Smartphones📱")
+                    {
+                        var replyKeyboardMarkup = new ReplyKeyboardMarkup(
+                        new List<KeyboardButton[]>()
+                        {
+                            new KeyboardButton[]
+                            {
+                                new KeyboardButton("CREAT"),
+                                new KeyboardButton("READ"),
+                            },
+                            new KeyboardButton[]
+                            {
+                                new KeyboardButton("UPDATE"),
+                                new KeyboardButton("DELETE")
+                            }
+
+
+                        })
+                        {
+                            ResizeKeyboard = true
+                        };
                     }
+
+
                     else
                     {
-                                string jsonFilePath = "../../../users.json";
+                        string jsonFilePath = "../../../users.json";
                         var dataList = io.File.ReadAllText(jsonFilePath);
 
                         List<Contact> list = JsonConvert.DeserializeObject<List<Contact>>(dataList);
@@ -99,6 +155,7 @@ namespace OnlinePhoneMarket_bot
                         };
                     }
                 }
+                
                 catch (Exception e)
                 {
                     Console.WriteLine(e);

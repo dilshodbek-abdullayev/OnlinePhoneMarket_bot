@@ -8,7 +8,6 @@ namespace OnlinePhoneMarket_bot
 {
     public class Message
     {
-        AdminClass admin = new AdminClass();
         public static async Task MessageAsyncFunction(ITelegramBotClient botClient, Update update,
             CancellationToken cancellationToken, bool isEnter)
         {
@@ -43,7 +42,7 @@ namespace OnlinePhoneMarket_bot
 
         static async Task Contact(ITelegramBotClient botClient, Update update, bool isEnter)
         {
-            Console.WriteLine(isEnter);
+            //Console.WriteLine(isEnter);
             ReplyKeyboardMarkup markup = new ReplyKeyboardMarkup
             (
                 KeyboardButton.WithRequestContact("Contakt yuborish")
